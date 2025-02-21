@@ -1,0 +1,81 @@
+version: '3.9'
+
+services:
+
+  # frontend:
+  #   build:
+  #     context: ./frontend/
+  #     dockerfile: ./Dockerfile
+  #   container_name: hack-frontend
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.frontend.rule=Host(`energy-cerber.ru`)"
+  #     - "traefik.http.routers.frontend.entrypoints=websecure"
+  #     - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+  #     - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+  #   networks:
+  #     - network
+  #   depends_on:
+  #     - backend
+
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--configFile=./backend/traefik.yml"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./backend/traefik/traefik.yml:/traefik.yml:ro
+      - ./backend/traefik/acme.json:/acme.json
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - network
+
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: ./Dockerfile
+    container_name: hack-backend
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.energy-cerber.ru`) && PathPrefix(`/`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+    volumes:
+      - ./assets:/app/assets
+    networks:
+      - network
+
+  postgres:
+    container_name: hack-db
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      - network
+
+networks:
+  network:
+    external: false
+
+volumes:
+  pgdata:
+    external: true
