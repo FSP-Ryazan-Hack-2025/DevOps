@@ -2,36 +2,6 @@ version: '3.9'
 
 services:
 
-  # frontend:
-  #   build:
-  #     context: ./frontend/
-  #     dockerfile: ./Dockerfile
-  #   container_name: hack-frontend
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.frontend.rule=Host(`energy-cerber.ru`)"
-  #     - "traefik.http.routers.frontend.entrypoints=websecure"
-  #     - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-  #     - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-  #   networks:
-  #     - network
-  #   depends_on:
-  #     - backend
-
-  traefik:
-    image: traefik:v2.9
-    command:
-      - "--configFile=./backend/traefik.yml"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./backend/traefik/traefik.yml:/traefik.yml:ro
-      - ./backend/traefik/acme.json:/acme.json
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - network
-
   backend:
     build:
       context: ./backend/
@@ -43,14 +13,16 @@ services:
       - postgres
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`api.energy-cerber.ru`) && PathPrefix(`/`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.http.routers.hack-backend.rule=Host(`api-hack.energy-cerber.ru`)"
+      - "traefik.http.routers.hack-backend.entrypoints=websecure"
+      - "traefik.http.routers.hack-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.hack-backend.loadbalancer.server.port=8000"
     volumes:
       - ./backend/assets:/app/assets
     networks:
-      - network
+      - my_network
+    ports:
+      - "8000"
 
   postgres:
     container_name: hack-db
@@ -70,8 +42,9 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     networks:
-      - network
+      - my_network
 
 networks:
-  network:
-    external: false
+  my_network:
+    external: true
+    name: todo-prod_my_network
