@@ -1,6 +1,6 @@
 [submodule "backend"]
 	path = backend
-	url = https://github.com/FSP-Ryazan-Hack-2025/backend.git
+	url = git@github.com:FSP-Ryazan-Hack-2025/backend.git
 [submodule "frontend"]
 	path = frontend
-	url = https://github.com/FSP-Ryazan-Hack-2025/frontend.git
+	url = git@github.com:FSP-Ryazan-Hack-2025/frontend.git
