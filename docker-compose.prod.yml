@@ -2,23 +2,23 @@ version: '3.9'
 
 services:
 
-  frontend:
-    build:
-      context: ./frontend/
-      dockerfile: ./Dockerfile
-    container_name: hack-frontend
-    env_file:
-      - .env
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.hack-frontend.rule=Host(`hack.energy-cerber.ru`)"
-      - "traefik.http.routers.hack-frontend.entrypoints=websecure"
-      - "traefik.http.routers.hack-frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.hack-frontend.loadbalancer.server.port=3000"
-    networks:
-      - my_network
-    depends_on:
-      - backend
+  # frontend:
+  #   build:
+  #     context: ./frontend/
+  #     dockerfile: ./Dockerfile
+  #   container_name: hack-frontend
+  #   env_file:
+  #     - .env
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.hack-frontend.rule=Host(`hack.energy-cerber.ru`)"
+  #     - "traefik.http.routers.hack-frontend.entrypoints=websecure"
+  #     - "traefik.http.routers.hack-frontend.tls.certresolver=letsencrypt"
+  #     - "traefik.http.services.hack-frontend.loadbalancer.server.port=3000"
+  #   networks:
+  #     - my_network
+  #   depends_on:
+  #     - backend
 
   backend:
     build:
