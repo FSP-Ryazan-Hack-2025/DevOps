@@ -65,4 +65,4 @@ services:
 networks:
   my_network:
     external: true
-    name: todo-prod_my_network
+    name: vps-network
